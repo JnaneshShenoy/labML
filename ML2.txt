@@ -1,25 +1,29 @@
-﻿3. Write a Python program to predict the price of the flight by using the flight.csv dataset. Analyse and preprocess the data and generate the data correlation heatmap. Check the outlier using the boxplot and cleanse the outlier using the z-score. Build an ML model using the Decision tree Regressor, Random forest Regressor, and Adaboost regressor and find the RMSE, MSE, and R2 score.
-
-
+﻿# Flight
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+
+
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
+from scipy.stats import zscore
+
+
+df = pd.read_csv('Clean_Dataset.csv')
+
+
+# Drop unnecessary columns
+df2 = df.drop(columns=['Unnamed: 0', 'flight'])
+
+
 sns.set_theme(color_codes=True)
-
-
-df=pd.read_csv('Clean_Dataset.csv')
-
-
-#drop unnecessary columns
-df2=df.drop(columns=['Unnamed: 0','flight'])
-
-
-sns.barplot(data=df,x='airline',y='price',hue='class')
-sns.barplot(data=df,x='airline',y='duration',hue='class')
-sns.barplot(data=df,x='stops',y='price',hue='class')
-sns.countplot(data=df,x='stops',hue='airline')
-sns.barplot(data=df,x='destination_city',y='price')
+sns.barplot(data=df, x='airline', y='price', hue='class')
+sns.countplot(data=df, x='stops', hue='airline')
 
 
 # Convert data to Numeric
@@ -83,7 +87,7 @@ df2.head()
 df2.dtypes
 
 
-# **Change object datatype into integer**
+# Change object datatype into integer
 df2['airline'] = pd.to_numeric(df2['airline'])
 df2['source_city'] = pd.to_numeric(df2['source_city'])
 df2['departure_time']=pd.to_numeric(df2['departure_time'])
@@ -94,230 +98,8 @@ df2['class']=pd.to_numeric(df2['class'])
 df2.dtypes
 
 
-# **Heatmap**
+# Heatmap
 sns.heatmap(df2.corr(),fmt='.2g')
-
-
-import scipy.stats as stats
-z=np.abs(stats.zscore(df2))
-data_clean=df2[(z<2).all(axis=1)]
-data_clean.shape
-sns.heatmap(data_clean.corr(),fmt='.2g')
-
-
-# **ML building model**
-X=df2.drop('price',axis=1)
-y=df2['price']
-
-
-# Check for missing values in X
-# Optional
-missing_values = X.isnull().sum()
-print(missing_values)
-
-
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import accuracy_score
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-
-
-# **Decision Tree Regressor**
-from sklearn.tree import DecisionTreeRegressor
-dtree=DecisionTreeRegressor(random_state=0)
-dtree.fit(X_train,y_train)
-from sklearn import metrics
-import math
-
-
-y_pred=dtree.predict(X_test)
-
-
-mae=metrics.mean_absolute_error(y_test,y_pred)
-mse=metrics.mean_squared_error(y_test,y_pred)
-r2=metrics.r2_score(y_test,y_pred)
-rmse=math.sqrt(mse)
-
-
-print('MAE is {}'.format(mae))
-print('MSE is {}'.format(mse))
-print('R2 Score is {}'.format(r2))
-print('RMSE is {}'.format(rmse))
-
-
-# **Random Forest Regressor**
-from sklearn.ensemble import RandomForestRegressor
-rfc = RandomForestRegressor(random_state=0)
-rfc.fit(X_train, y_train)
-y_pred=rfc.predict(X_test)
-
-
-mae=metrics.mean_absolute_error(y_test,y_pred)
-mse=metrics.mean_squared_error(y_test,y_pred)
-r2=metrics.r2_score(y_test,y_pred)
-rmse=math.sqrt(mse)
-
-
-print('MAE is ',format(mae))
-print('MSE is ',format(mse))
-print('R2 Score is {}'.format(r2))
-print('RMSE is {}'.format(rmse))
-
-
-# **Adaboost Forest Regressor**
-from sklearn.ensemble import AdaBoostRegressor
-ada=AdaBoostRegressor(random_state=0)
-ada.fit(X_train,y_train)
-y_pred=ada.predict(X_test)
-
-
-mae=metrics.mean_absolute_error(y_test,y_pred)
-mse=metrics.mean_squared_error(y_test,y_pred)
-r2=metrics.r2_score(y_test,y_pred)
-rmse=math.sqrt(mse)
-
-
-print('MAE is ',format(mae))
-print('MSE is ',format(mse))
-print('R2 Score is {}'.format(r2))
-print('RMSE is {}'.format(rmse))
-
-
-
-
-
-
-
-
-4. Breast cancer
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-sns.set_theme(color_codes=True)
-df = pd.read_csv('dataR2.csv')
-df
-df.isnull().sum()
-df_copy = df.copy(deep = True)
-col_set =  ['Age','BMI','Glucose','Insulin','HOMA','Leptin','Adiponectin','Resistin','MCP.1']
-df_copy[col_set] = df_copy[col_set].replace(0,np.NaN)
-
-
-# Showing the Count of NANs
-print(df_copy.isnull().sum())
-sns.countplot(df['Classification'])
-print(df.Classification.value_counts())
-sns.boxplot(x=df["Age"])
-sns.boxplot(x=df["BMI"])
-sns.boxplot(x=df["Glucose"])
-sns.boxplot(x=df["Insulin"])
-sns.boxplot(x=df["HOMA"])
-sns.boxplot(x=df["Leptin"])
-sns.boxplot(x=df["Adiponectin"])
-sns.boxplot(x=df["Resistin"])
-sns.boxplot(x=df["MCP.1"])
-import scipy.stats as stats
-z = np.abs(stats.zscore(df))
-data_clean = df[(z<3).all(axis = 1)]
-data_clean.shape
-sns.heatmap(data_clean.corr())
-corr = data_clean[data_clean.columns[1:]].corr()['Classification'][:-1]
-plt.plot(corr)
-plt.xticks(rotation=90)
-plt.show()
-X = data_clean.drop('Classification', axis=1)
-y = data_clean['Classification']
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.1,random_state=0)
-from sklearn.tree import DecisionTreeClassifier
-dtree = DecisionTreeClassifier(random_state = 0)
-dtree.fit(X_train, y_train)
-y_pred = dtree.predict(X_test)
-print("Accuracy Score :", round(accuracy_score(y_test, y_pred)*100 ,2), "%")
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-print('F-1 Score : ',(f1_score(y_test, y_pred)))
-print('Precision Score : ',(precision_score(y_test, y_pred)))
-print('Recall Score : ',(recall_score(y_test, y_pred)))
-from sklearn.ensemble import RandomForestClassifier
-rfc = RandomForestClassifier(random_state = 0)
-rfc.fit(X_train, y_train)
-y_pred = rfc.predict(X_test)
-print("Accuracy Score :", round(accuracy_score(y_test, y_pred)*100 ,2), "%")
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-print('F-1 Score : ',(f1_score(y_test, y_pred)))
-print('Precision Score : ',(precision_score(y_test, y_pred)))
-print('Recall Score : ',(recall_score(y_test, y_pred)))
-from sklearn import svm
-sv = svm.SVC(random_state = 0)
-sv.fit(X_train, y_train)
-y_pred = sv.predict(X_test)
-print("Accuracy Score :", round(accuracy_score(y_test, y_pred)*100 ,2), "%")
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-print('F-1 Score : ',(f1_score(y_test, y_pred)))
-print('Precision Score : ',(precision_score(y_test, y_pred)))
-print('Recall Score : ',(recall_score(y_test, y_pred)))
-from sklearn.linear_model import LogisticRegression
-lr = LogisticRegression(random_state = 0)
-lr.fit(X_train, y_train)
-y_pred = lr.predict(X_test)
-print("Accuracy Score :", round(accuracy_score(y_test, y_pred)*100 ,2), "%")
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-print('F-1 Score : ',(f1_score(y_test, y_pred)))
-print('Precision Score : ',(precision_score(y_test, y_pred)))
-print('Recall Score : ',(recall_score(y_test, y_pred)))
-
-
-________________
-
-
-Better x Clean code:
-
-
-3. Write a Python program to predict the price of the flight by using the flight.csv dataset. Analyse and preprocess the data and generate the data correlation heatmap. Check the outlier using the boxplot and cleanse the outlier using the z-score. Build an ML model using the Decision tree Regressor, Random forest Regressor, and Adaboost regressor and find the RMSE, MSE, and R2 score.
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-
-
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-
-
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
-from scipy.stats import zscore
-
-
-df = pd.read_csv('Clean_Dataset.csv')
-
-
-# Drop unnecessary columns
-df2 = df.drop(columns=['Unnamed: 0', 'flight'])
-
-
-sns.set_theme(color_codes=True)
-sns.barplot(data=df, x='airline', y='price', hue='class')
-sns.barplot(data=df, x='airline', y='duration', hue='class')
-sns.barplot(data=df, x='stops', y='price', hue='class')
-sns.countplot(data=df, x='stops', hue='airline')
-sns.barplot(data=df, x='destination_city', y='price')
-
-
-# Convert categorical data to numeric
-categorical_cols = ['source_city', 'departure_time', 'arrival_time', 'destination_city', 'tops', 'airline', 'class']
-for col in categorical_cols:
-    df2[col] = pd.Categorical(df2[col]).codes
-
-
-df2.dtypes
-
-
-sns.heatmap(df2.corr(), fmt='.2g')
 
 
 z = np.abs(zscore(df2))
@@ -325,52 +107,40 @@ data_clean = df2[(z < 2).all(axis=1)]
 sns.heatmap(data_clean.corr(), fmt='.2g')
 
 
-X = data_clean.drop('price', axis=1)
-y = data_clean['price']
+X = df2.drop('price', axis=1)
+y = df2['price']
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 
-# Define evaluation metrics
-def evaluate_model(model, X_test, y_test):
+models = [
+    ('Decision Tree Regressor', DecisionTreeRegressor(random_state=0)),
+    ('Random Forest Regressor', RandomForestRegressor(random_state=0)),
+    ('Adaboost Regressor', AdaBoostRegressor(random_state=0))
+]
+
+
+for name, model in models:
+    model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
+
+
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
     rmse = np.sqrt(mse)
-    return mae, mse, r2, rmse
 
 
-# Decision Tree Regressor
-dtree = DecisionTreeRegressor(random_state=0)
-dtree.fit(X_train, y_train)
-mae, mse, r2, rmse = evaluate_model(dtree, X_test, y_test)
-print('Decision Tree Regressor:')
-print('MAE: {:.2f}, MSE: {:.2f}, R2: {:.2f}, RMSE: {:.2f}'.format(mae, mse, r2, rmse))
+    print(f'{name}:')
+    print(f'MAE: {mae:.2f}, MSE: {mse:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f},\n')
 
 
-# Random Forest Regressor
-rfc = RandomForestRegressor(random_state=0)
-rfc.fit(X_train, y_train)
-mae, mse, r2, rmse = evaluate_model(rfc, X_test, y_test)
-print('Random Forest Regressor:')
-print('MAE: {:.2f}, MSE: {:.2f}, R2: {:.2f}, RMSE: {:.2f}'.format(mae, mse, r2, rmse))
-
-
-# Adaboost Forest Regressor
-ada = AdaBoostRegressor(random_state=0)
-ada.fit(X_train, y_train)
-mae, mse, r2, rmse = evaluate_model(ada, X_test, y_test)
-print('Adaboost Forest Regressor:')
-print('MAE: {:.2f}, MSE: {:.2f}, R2: {:.2f}, RMSE: {:.2f}'.format(mae, mse, r2, rmse))
+  
 
 
 
-
-4. Breast cancer
-
-
+# Breast Cancer
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -388,49 +158,66 @@ from sklearn import svm
 from sklearn.linear_model import LogisticRegression
 
 
-df = pd.read_csv('dataR2.csv')
+sns.set_theme(color_codes=True)
+df = pd.read_csv('BreastCancer.csv')
+df
+df.isnull().sum()
 
 
-# Replace 0 values with NaN in specified columns
-col_set = ['Age', 'BMI', 'Glucose', 'Insulin', 'HOMA', 'Leptin', 'Adiponectin', 'Resistin', 'MCP.1']
-df[col_set] = df[col_set].replace(0, np.NaN)
+df_copy = df.copy(deep = True)
+col_set =  ['Age','BMI','Glucose','Insulin','HOMA','Leptin','Adiponectin','Resistin','MCP.1']
+df_copy[col_set] = df_copy[col_set].replace(0,np.NaN)
 
 
-# Remove rows with NaN values
-df_clean = df.dropna()
 
 
-# Visualizations
-sns.countplot(df_clean['Classification'])
-sns.boxplot(data=df_clean[col_set])
+# Showing the Count of NANs
+print(df_copy.isnull().sum())
+print(df.Classification.value_counts())
+
+
+sns.countplot(df['Classification'])
+
+
+sns.boxplot(x=df["Glucose"])
+
+
+import scipy.stats as stats
+z = np.abs(stats.zscore(df))
+data_clean = df[(z<3).all(axis = 1)]
+data_clean.shape
+
+
+sns.heatmap(data_clean.corr())
+corr = data_clean[data_clean.columns[1:]].corr()['Classification'][:-1]
+plt.plot(corr)
 plt.xticks(rotation=90)
 plt.show()
 
 
-sns.heatmap(df_clean.corr())
-plt.show()
+X = data_clean.drop('Classification', axis=1)
+y = data_clean['Classification']
 
 
-# Data splitting
-X = df_clean.drop('Classification', axis=1)
-y = df_clean['Classification']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.1,random_state=0)
 
 
-# Modeling and evaluation
-models = {
-    "Decision Tree": DecisionTreeClassifier(random_state=0),
-    "Random Forest": RandomForestClassifier(random_state=0),
-    "SVM": svm.SVC(random_state=0),
-    "Logistic Regression": LogisticRegression(random_state=0)
-}
+# Define the models
+models = [
+    ('Decision Tree', DecisionTreeClassifier(random_state=0)),
+    ('Random Forest', RandomForestClassifier(random_state=0)),
+    ('SVM', svm.SVC(random_state=0)),
+    ('Logistic Regression', LogisticRegression(random_state=0))
+]
 
 
-for name, model in models.items():
+# Evaluate the models
+for name, model in models:
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    acc_score = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    print(f"{name} - Accuracy: {acc_score:.2f}, F1: {f1:.2f}, Precision: {precision:.2f}, Recall: {recall:.2f}")
+    print(f'Model: {name}')
+    print(f'Accuracy Score: {round(accuracy_score(y_test, y_pred)*100 ,2)}%')
+    print(f'F-1 Score: {f1_score(y_test, y_pred)}')
+    print(f'Precision Score: {precision_score(y_test, y_pred)}')
+    print(f'Recall Score: {recall_score(y_test, y_pred)}')
+    print()
