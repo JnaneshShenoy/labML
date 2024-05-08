@@ -221,3 +221,17 @@ for name, model in models:
     print(f'Precision Score: {precision_score(y_test, y_pred)}')
     print(f'Recall Score: {recall_score(y_test, y_pred)}')
     print()
+
+
+
+# ===============================
+
+from sklearn.metrics import confusion_matrix
+
+# Plot the confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.title(f'Confusion Matrix for {name}')
+plt.xlabel('Predicted label')
+plt.ylabel('True label')
+plt.show()
